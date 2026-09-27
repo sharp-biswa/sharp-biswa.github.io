@@ -483,17 +483,20 @@
             </div>
             <div class="reveal">
                 <form class="contact-form" id="contact-form">
+                    <div style="display:none;" aria-hidden="true">
+                        <input type="text" name="_gotcha" id="f-gotcha" tabindex="-1" autocomplete="off">
+                    </div>
                     <div class="fg">
                         <label class="flabel" for="f-name">Full Name</label>
-                        <input type="text" class="finput" id="f-name" name="name" placeholder="Your name" autocomplete="name" required>
+                        <input type="text" class="finput" id="f-name" name="name" placeholder="Your name" autocomplete="name" maxlength="80" required>
                     </div>
                     <div class="fg">
                         <label class="flabel" for="f-email">Email</label>
-                        <input type="email" class="finput" id="f-email" name="email" placeholder="your@email.com" autocomplete="email" required>
+                        <input type="email" class="finput" id="f-email" name="email" placeholder="your@email.com" autocomplete="email" maxlength="100" required>
                     </div>
                     <div class="fg">
                         <label class="flabel" for="f-msg">Message</label>
-                        <textarea class="ftextarea" id="f-msg" name="message" placeholder="Tell me what you're working on..." required></textarea>
+                        <textarea class="ftextarea" id="f-msg" name="message" placeholder="Tell me what you're working on..." maxlength="2000" required></textarea>
                     </div>
                     <button type="submit" class="btn-primary" id="submit-btn" style="width:100%;justify-content:center;">
                         Send Message ↗
@@ -663,6 +666,10 @@
         var name = document.getElementById('f-name').value.trim();
         var email = document.getElementById('f-email').value.trim();
         var message = document.getElementById('f-msg').value.trim();
+        var gotcha = document.getElementById('f-gotcha') ? document.getElementById('f-gotcha').value : '';
+
+        // Drop spam bots filling hidden honeypot
+        if(gotcha) return;
 
         if(!name || !email || !message){
             setStatus('Please complete all fields.', '#ef4444');

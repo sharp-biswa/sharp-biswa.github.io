@@ -26,6 +26,12 @@ Whenever a visitor submits the contact form, a new row is automatically added to
 ```javascript
 function doPost(e) {
   try {
+    // 🛡️ SECURITY 1: Reject automated bots that fill hidden honeypot field
+    if (e.parameter._gotcha) {
+      return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     
     // Auto-create headers if sheet is empty
@@ -34,10 +40,17 @@ function doPost(e) {
       sheet.getRange(1, 1, 1, 4).setFontWeight("bold").setBackground("#e2e8f0");
     }
     
+    // 🛡️ SECURITY 2: Truncate strings to prevent payload abuse
     var timestamp = e.parameter.timestamp || new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-    var name      = e.parameter.name || "N/A";
-    var email     = e.parameter.email || "N/A";
-    var message   = e.parameter.message || "N/A";
+    var name      = String(e.parameter.name || "").substring(0, 100);
+    var email     = String(e.parameter.email || "").substring(0, 120);
+    var message   = String(e.parameter.message || "").substring(0, 2500);
+
+    // Reject empty messages
+    if (!name || !email || !message) {
+      return ContentService.createTextOutput(JSON.stringify({ status: "ignored" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     
     sheet.appendRow([timestamp, name, email, message]);
     
