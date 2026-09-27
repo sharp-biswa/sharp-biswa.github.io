@@ -61,8 +61,10 @@
         .hero-content { position:relative; z-index:1; text-align:center; padding:0 24px; max-width:880px; }
         .hero-badge { display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:11px; font-weight:500; color:var(--accent); letter-spacing:0.1em; text-transform:uppercase; padding:6px 16px; border:1px solid rgba(46,224,110,0.25); border-radius:40px; background:var(--accent-dim); margin-bottom:30px; }
         .hero-badge::before { content:''; width:7px; height:7px; border-radius:50%; background:var(--accent); animation:blink 1.6s infinite; }
-        .hero-name { font-size:clamp(3rem,8.5vw,7.5rem); font-weight:700; line-height:0.95; letter-spacing:-0.035em; margin-bottom:20px; }
+
+        .hero-name { font-size:clamp(2.9rem,8vw,7rem); font-weight:700; line-height:1.02; letter-spacing:-0.035em; margin-bottom:20px; min-height:2.08em; display:flex; flex-direction:column; align-items:center; justify-content:center; }
         .hero-name .accent { color:var(--accent); }
+        .hero-cursor { display:inline-block; width:0.07em; height:0.82em; background:var(--accent); margin-left:4px; vertical-align:baseline; animation:blink 0.9s infinite; }
         .hero-sub { font-size:clamp(0.95rem,2.2vw,1.25rem); font-weight:400; color:var(--text-secondary); max-width:600px; margin:0 auto 40px; line-height:1.75; }
         .hero-actions { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; }
         .btn-primary { display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:#000; background:var(--accent); padding:13px 26px; border-radius:40px; border:none; cursor:pointer; transition:var(--ease); font-family:var(--font-sans); }
@@ -201,12 +203,14 @@
 
         /* RESPONSIVE */
         @media(max-width:768px){
-            nav{padding:7px 12px;}
-            .nav-links,.nav-cta{display:none;}
+            nav{padding:8px 16px; flex-wrap:wrap; max-width:calc(100vw - 32px);}
+            .nav-links{display:none; width:100%; flex-direction:column; padding-top:10px; gap:4px;}
+            .nav-links.open{display:flex;}
+            .nav-cta{display:none;}
             .nav-toggle{display:block;}
             .about-grid,.contact-grid{grid-template-columns:1fr;gap:36px;}
             .project-row{grid-template-columns:54px 1fr 22px;padding:20px;gap:12px;}
-            .hero-name{font-size:2.6rem;}
+            .hero-name{font-size:2.4rem;}
             section{padding:64px 0;}
             .footer-inner{flex-direction:column;align-items:flex-start;}
         }
@@ -233,9 +237,9 @@
     <canvas id="canvas-bg"></canvas>
     <div class="hero-content">
         <div class="hero-badge">Available for Internships &amp; Collaborations</div>
-        <h1 class="hero-name">
-            Biswaranjan<br>
-            <span class="accent">Sahoo</span>
+        <h1 class="hero-name" id="hero-name-target">
+            <span id="hero-line1">Biswaranjan</span>
+            <div><span id="hero-line2" class="accent">Sahoo</span><span class="hero-cursor" id="hero-cursor"></span></div>
         </h1>
         <p class="hero-sub">Engineering Student &nbsp;·&nbsp; Technical Lead &nbsp;·&nbsp; Edge AI &amp; Full-Stack Developer</p>
         <div class="hero-actions">
@@ -518,6 +522,8 @@
             <span>RKL 22.26°N 84.87°E</span>
             <div class="fdiv"></div>
             <span id="f-time">IST 00:00:00</span>
+            <div class="fdiv" id="fdiv-user" style="display:none;"></div>
+            <span id="f-user-time" style="display:none;color:var(--accent);"></span>
         </div>
         <div class="f-right">
             <div class="f-socials">
@@ -568,6 +574,19 @@
 
 /* === CLI TERMINAL === */
 (function(){
+    var now = new Date();
+    var h = now.getHours();
+    var greeting = (h >= 5 && h < 12) ? 'Good Morning' : (h >= 12 && h < 17) ? 'Good Afternoon' : (h >= 17 && h < 22) ? 'Good Evening' : 'Good Night';
+    var tz = '';
+    try {
+        var parts = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' }).formatToParts(now);
+        var tzPart = parts.find(function(p){ return p.type === 'timeZoneName'; });
+        if (tzPart && tzPart.value) tz = tzPart.value;
+    } catch(e) {}
+    if (!tz) {
+        try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local'; } catch(e) { tz = 'Local'; }
+    }
+
     var lines=[
         {t:'cmd',  s:'systemctl start biswaranjan.service'},
         {t:'ok',   s:'[ OK ] Loaded: Engineering Student (BPUT, CSE)'},
@@ -576,6 +595,7 @@
         {t:'ok',   s:'[ OK ] Initialized: Edge AI · Hailo NPU'},
         {t:'ok',   s:'[ OK ] Mounted: Drone Flight Controller'},
         {t:'ok',   s:'[ OK ] Selected: MeitY GENESIS EIR 2.0'},
+        {t:'ok',   s:'[ OK ] Client Link: ' + greeting + ' (' + tz + ')'},
         {t:'blank',s:''},
         {t:'out',  s:'WELCOME TO BISWARANJAN\'s SYSTEM'},
         {t:'out',  s:'Status: ACTIVE · Rourkela, Odisha, India'},
@@ -629,20 +649,175 @@
     ids.forEach(function(id){ var el=document.getElementById(id); if(el)io.observe(el); });
 })();
 
-/* === LIVE CLOCK + NIGHT SHIFT === */
+/* === MOBILE NAV === */
 (function(){
-    var el=document.getElementById('f-time');
+    var btn = document.getElementById('nav-toggle');
+    var list = document.querySelector('.nav-links');
+    if (btn && list) {
+        btn.addEventListener('click', function(){ list.classList.toggle('open'); });
+        list.querySelectorAll('a').forEach(function(a){
+            a.addEventListener('click', function(){ list.classList.remove('open'); });
+        });
+    }
+})();
+
+/* === LIVE CLOCK & TELEMETRY === */
+(function(){
+    var elIST = document.getElementById('f-time');
+    var elUser = document.getElementById('f-user-time');
+    var elUserDiv = document.getElementById('fdiv-user');
+
+    var userTz = '';
+    var tzAbbr = '';
+    try {
+        userTz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        var parts = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' }).formatToParts(new Date());
+        var tzPart = parts.find(function(p){ return p.type === 'timeZoneName'; });
+        if (tzPart && tzPart.value) tzAbbr = tzPart.value;
+    } catch(e) {}
+    if (!tzAbbr) tzAbbr = userTz || 'LOCAL';
+
     function tick(){
-        var now=new Date();
-        el.textContent='IST '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:'Asia/Kolkata'});
-        var h=now.getHours();
-        if(h>=20||h<6){
-            document.documentElement.style.setProperty('--accent','#f59e0b');
-            document.documentElement.style.setProperty('--accent-dim','rgba(245,158,11,0.12)');
-            document.documentElement.style.setProperty('--accent-glow','rgba(245,158,11,0.28)');
+        var now = new Date();
+
+        // Indian Standard Time in footer
+        if (elIST) {
+            elIST.textContent = 'IST ' + now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' });
+        }
+
+        // Dual local time if visitor is outside IST
+        if (elUser && elUserDiv && userTz && userTz !== 'Asia/Kolkata' && userTz !== 'Asia/Calcutta') {
+            elUser.textContent = 'LOCAL ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' (' + tzAbbr + ')';
+            elUser.style.display = 'inline';
+            elUserDiv.style.display = 'inline-block';
+        }
+
+        // Night-shift amber mode after 8pm IST
+        var hIST = parseInt(now.toLocaleTimeString('en-IN', { hour: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' }), 10);
+        if (hIST >= 20 || hIST < 6) {
+            document.documentElement.style.setProperty('--accent', '#f59e0b');
+            document.documentElement.style.setProperty('--accent-dim', 'rgba(245,158,11,0.12)');
+            document.documentElement.style.setProperty('--accent-glow', 'rgba(245,158,11,0.28)');
         }
     }
-    tick(); setInterval(tick,1000);
+
+    tick();
+    setInterval(tick, 1000);
+})();
+
+/* === HERO NAME TYPEWRITER TRANSITION === */
+(function(){
+    var line1 = document.getElementById('hero-line1');
+    var line2 = document.getElementById('hero-line2');
+    var cursor = document.getElementById('hero-cursor');
+    if (!line1 || !line2) return;
+
+    // Detect visitor time and choose sarcastic/witty greeting
+    function getGreetingForTime(testKey){
+        var params = new URLSearchParams(window.location.search);
+        var key = testKey || params.get('time') || '';
+        var testHour = params.get('hour');
+
+        var now = new Date();
+        var h = (testHour !== null && testHour !== '' && !testKey) ? parseInt(testHour, 10) : now.getHours();
+
+        if (key === 'night' || key === 'latenight') h = 2;
+        else if (key === 'early') h = 6;
+        else if (key === 'morning') h = 10;
+        else if (key === 'afternoon') h = 14;
+        else if (key === 'evening') h = 19;
+
+        if (h >= 23 || h < 5) {
+            return { l1: 'Welcome,', l2: 'Late Nighters', label: 'Late Night' };
+        } else if (h >= 5 && h < 9) {
+            return { l1: 'Welcome,', l2: 'Early Risers', label: 'Early Morning' };
+        } else if (h >= 9 && h < 12) {
+            return { l1: 'Welcome,', l2: 'Morning Hustlers', label: 'Morning' };
+        } else if (h >= 12 && h < 17) {
+            return { l1: 'Welcome,', l2: 'Afternoon Slumpers', label: 'Afternoon' };
+        } else {
+            return { l1: 'Welcome,', l2: 'Night Engineers', label: 'Evening' };
+        }
+    }
+
+    var finalL1 = 'Biswaranjan';
+    var finalL2 = 'Sahoo';
+    var currentTimers = [];
+
+    function clearAllTimers(){
+        currentTimers.forEach(function(t){ clearInterval(t); clearTimeout(t); });
+        currentTimers = [];
+    }
+
+    function type(text, el, speed, cb){
+        var i = 0;
+        var timer = setInterval(function(){
+            el.textContent += text.charAt(i);
+            i++;
+            if (i >= text.length) {
+                clearInterval(timer);
+                if (cb) cb();
+            }
+        }, speed);
+        currentTimers.push(timer);
+    }
+
+    function backspace(el, speed, cb){
+        var timer = setInterval(function(){
+            var cur = el.textContent;
+            if (cur.length > 0) {
+                el.textContent = cur.substring(0, cur.length - 1);
+            } else {
+                clearInterval(timer);
+                if (cb) cb();
+            }
+        }, speed);
+        currentTimers.push(timer);
+    }
+
+    function runAnimation(greeting){
+        clearAllTimers();
+        if (cursor) cursor.style.display = 'inline-block';
+        line1.textContent = '';
+        line2.textContent = '';
+
+        var t0 = setTimeout(function(){
+            type(greeting.l1, line1, 70, function(){
+                type(greeting.l2, line2, 75, function(){
+                    var t1 = setTimeout(function(){
+                        backspace(line2, 36, function(){
+                            backspace(line1, 36, function(){
+                                var t2 = setTimeout(function(){
+                                    type(finalL1, line1, 65, function(){
+                                        type(finalL2, line2, 70, function(){
+                                            var t3 = setTimeout(function(){
+                                                if (cursor) cursor.style.display = 'none';
+                                            }, 3500);
+                                            currentTimers.push(t3);
+                                        });
+                                    });
+                                }, 280);
+                                currentTimers.push(t2);
+                            });
+                        });
+                    }, 1900);
+                    currentTimers.push(t1);
+                });
+            });
+        }, 300);
+        currentTimers.push(t0);
+    }
+
+    // Expose testing helper in browser console: window.testGreeting('morning') etc.
+    window.testGreeting = function(timeName){
+        var g = getGreetingForTime(timeName);
+        console.log('%c Testing Greeting: ' + g.label + ' -> "' + g.l1 + ' ' + g.l2 + '"', 'color:#2ee06e;font-weight:bold;');
+        runAnimation(g);
+        return 'Testing ' + g.label + ' mode...';
+    };
+
+    // Auto-run on load with real browser time
+    runAnimation(getGreetingForTime());
 })();
 
 /* === CONTACT FORM (GOOGLE SHEETS DATABASE) === */
@@ -677,23 +852,8 @@
         }
 
         btn.disabled = true;
-        btn.textContent = 'Transmitting...';
-        setStatus('Connecting to database...', 'var(--text-secondary)');
-
-        // If the placeholder URL hasn't been replaced yet, run a friendly simulation:
-        if(!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE"){
-            setTimeout(function(){
-                btn.disabled = false;
-                btn.textContent = 'Message Sent ✓';
-                setStatus('Query recorded! (Add your Google Apps Script URL to save to Sheet)', '#2ee06e');
-                form.reset();
-                setTimeout(function(){
-                    btn.textContent = 'Send Message ↗';
-                    status.style.display = 'none';
-                }, 4500);
-            }, 800);
-            return;
-        }
+        btn.textContent = 'Sending...';
+        setStatus('Sending your message...', 'var(--text-secondary)');
 
         var params = new URLSearchParams();
         params.append('name', name);
@@ -709,7 +869,7 @@
         .then(function(){
             btn.disabled = false;
             btn.textContent = 'Message Sent ✓';
-            setStatus('✓ Query successfully saved to database', '#2ee06e');
+            setStatus('✓ Thank you! Your message has been sent successfully.', '#2ee06e');
             form.reset();
             setTimeout(function(){
                 btn.textContent = 'Send Message ↗';
@@ -719,7 +879,7 @@
         .catch(function(err){
             btn.disabled = false;
             btn.textContent = 'Send Message ↗';
-            setStatus('Error sending query. Please email directly.', '#ef4444');
+            setStatus('Unable to send right now. Please email directly at hellobiswa0405@gmail.com', '#ef4444');
             console.error('Submission error:', err);
         });
     });
