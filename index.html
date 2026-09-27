@@ -482,22 +482,23 @@
                 </div>
             </div>
             <div class="reveal">
-                <form class="contact-form" id="contact-form" novalidate>
+                <form class="contact-form" id="contact-form">
                     <div class="fg">
                         <label class="flabel" for="f-name">Full Name</label>
-                        <input type="text" class="finput" id="f-name" placeholder="Your name" autocomplete="name">
+                        <input type="text" class="finput" id="f-name" name="name" placeholder="Your name" autocomplete="name" required>
                     </div>
                     <div class="fg">
                         <label class="flabel" for="f-email">Email</label>
-                        <input type="email" class="finput" id="f-email" placeholder="your@email.com" autocomplete="email">
+                        <input type="email" class="finput" id="f-email" name="email" placeholder="your@email.com" autocomplete="email" required>
                     </div>
                     <div class="fg">
                         <label class="flabel" for="f-msg">Message</label>
-                        <textarea class="ftextarea" id="f-msg" placeholder="Tell me what you're working on..."></textarea>
+                        <textarea class="ftextarea" id="f-msg" name="message" placeholder="Tell me what you're working on..." required></textarea>
                     </div>
                     <button type="submit" class="btn-primary" id="submit-btn" style="width:100%;justify-content:center;">
                         Send Message ↗
                     </button>
+                    <div id="form-status" style="font-family:var(--font-mono);font-size:12px;margin-top:12px;text-align:center;display:none;"></div>
                 </form>
             </div>
         </div>
@@ -641,11 +642,77 @@
     tick(); setInterval(tick,1000);
 })();
 
-/* === CONTACT FORM === */
+/* === CONTACT FORM (GOOGLE SHEETS DATABASE) === */
 (function(){
-    var form=document.getElementById('contact-form');
-    var btn=document.getElementById('submit-btn');
-    form.addEventListener('submit',function(e){ e.preventDefault(); btn.textContent='Message Sent \u2713'; btn.style.opacity='0.85'; setTimeout(function(){btn.textContent='Send Message \u2197';btn.style.opacity='';},3500); });
+    // Paste your deployed Google Apps Script Web App URL below:
+    var GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+
+    var form = document.getElementById('contact-form');
+    var btn = document.getElementById('submit-btn');
+    var status = document.getElementById('form-status');
+
+    function setStatus(msg, color){
+        status.textContent = msg;
+        status.style.color = color;
+        status.style.display = 'block';
+    }
+
+    form.addEventListener('submit', function(e){
+        e.preventDefault();
+
+        var name = document.getElementById('f-name').value.trim();
+        var email = document.getElementById('f-email').value.trim();
+        var message = document.getElementById('f-msg').value.trim();
+
+        if(!name || !email || !message){
+            setStatus('Please complete all fields.', '#ef4444');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Transmitting...';
+        setStatus('Connecting to database...', 'var(--text-secondary)');
+
+        // If the placeholder URL hasn't been replaced yet, run a friendly simulation:
+        if(!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE"){
+            setTimeout(function(){
+                btn.disabled = false;
+                btn.textContent = 'Message Sent ✓';
+                setStatus('Query recorded! (Add your Google Apps Script URL to save to Sheet)', '#2ee06e');
+                form.reset();
+                setTimeout(function(){
+                    btn.textContent = 'Send Message ↗';
+                    status.style.display = 'none';
+                }, 4500);
+            }, 800);
+            return;
+        }
+
+        var formData = new FormData(form);
+        formData.append('timestamp', new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }));
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            body: formData,
+            mode: 'no-cors'
+        })
+        .then(function(){
+            btn.disabled = false;
+            btn.textContent = 'Message Sent ✓';
+            setStatus('✓ Query successfully saved to database', '#2ee06e');
+            form.reset();
+            setTimeout(function(){
+                btn.textContent = 'Send Message ↗';
+                status.style.display = 'none';
+            }, 4500);
+        })
+        .catch(function(err){
+            btn.disabled = false;
+            btn.textContent = 'Send Message ↗';
+            setStatus('Error sending query. Please email directly.', '#ef4444');
+            console.error('Submission error:', err);
+        });
+    });
 })();
 
 /* === CONSOLE EASTER EGG === */
