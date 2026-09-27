@@ -87,7 +87,7 @@ Then visit `http://localhost:8000`.
 **Biswaranjan Sahoo**
 - 📍 Rourkela, Odisha, India
 - 📧 [hellobiswa0405@gmail.com](mailto:hellobiswa0405@gmail.com)
-- 💼 [LinkedIn](https://linkedin.com)
+- 💼 [LinkedIn](https://www.linkedin.com/in/biswaranjan-sahoo-bput/)
 - 🐙 [GitHub](https://github.com/sharp-biswa)
 
 ---
