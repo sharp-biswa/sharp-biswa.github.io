@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://biswaranjansahoo.github.io/sitemap.xml
+Sitemap: https://sharp-biswa.github.io/sitemap.xml

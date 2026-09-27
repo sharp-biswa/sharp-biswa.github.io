@@ -2,7 +2,7 @@
 
 > Cyber-minimalist developer portfolio engineered with pure HTML5, CSS3, and JavaScript — no frameworks, no build steps, ultra-fast load time.
 
-[![GitHub Pages](https://img.shields.io/badge/Deploy-GitHub%20Pages-brightgreen?style=flat-square&logo=github)](https://biswaranjansahoo.github.io/)
+[![GitHub Pages](https://img.shields.io/badge/Deploy-GitHub%20Pages-brightgreen?style=flat-square&logo=github)](https://sharp-biswa.github.io/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Performance](https://img.shields.io/badge/Lighthouse-100%25-success?style=flat-square)](https://pagespeed.web.dev/)
 
@@ -88,7 +88,7 @@ Then visit `http://localhost:8000`.
 - 📍 Rourkela, Odisha, India
 - 📧 [hellobiswa0405@gmail.com](mailto:hellobiswa0405@gmail.com)
 - 💼 [LinkedIn](https://linkedin.com)
-- 🐙 [GitHub](https://github.com)
+- 🐙 [GitHub](https://github.com/sharp-biswa)
 
 ---
 
