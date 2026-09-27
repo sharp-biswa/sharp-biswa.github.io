@@ -695,12 +695,15 @@
             return;
         }
 
-        var formData = new FormData(form);
-        formData.append('timestamp', new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }));
+        var params = new URLSearchParams();
+        params.append('name', name);
+        params.append('email', email);
+        params.append('message', message);
+        params.append('timestamp', new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }));
 
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            body: formData,
+            body: params,
             mode: 'no-cors'
         })
         .then(function(){
