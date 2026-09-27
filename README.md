@@ -41,7 +41,6 @@ Portfolio/
 ├── favicon.svg                  # SVG brand favicon
 ├── robots.txt                   # Search engine crawler directives
 ├── sitemap.xml                  # SEO indexing sitemap
-├── Biswaranjan_Sahoo_Resume.pdf # Original PDF resume
 └── README.md                    # Project documentation
 ```
 
